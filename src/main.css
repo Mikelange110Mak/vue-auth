@@ -486,3 +486,13 @@ td.users__username>div>input:focus {
 .content .content__img-container img {
    max-height: 600px;
 }
+
+.greenHeader {
+   background-color: #297a2f;
+   border-color: #297a2f;
+}
+
+.redHeader {
+   background-color: #7a0808;
+   border-color: #7a0808;
+}
