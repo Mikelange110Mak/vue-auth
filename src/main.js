@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import AuthForm from './components/AuthForm.vue'
+import TheHeader from './components/TheHeader.vue'
 import AccountPage from './components/AccountPage.vue'
 import axios from 'axios'
 import './main.css'
@@ -19,6 +20,7 @@ axios.interceptors.request.use((config) => {
 
 app.config.globalProperties.$axios = axios
 app.use(router)
+app.component('the-header', TheHeader)
 app.component('auth-form', AuthForm)
 app.component('account-page', AccountPage)
 

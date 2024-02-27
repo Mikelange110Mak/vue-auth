@@ -1,7 +1,12 @@
 <template>
-  <the-header :class="{ greenHeader: headerColor, redHeader: !headerColor }">{{
-    errorMsg
-  }}</the-header>
+  <the-header
+    :class="{
+      greenHeader: headerColor === 'green',
+      redHeader: headerColor === 'red',
+      primaryHeader: headerColor === 'primary',
+    }"
+    >{{ headerMsg }}</the-header
+  >
   <router-view></router-view>
 </template>
 
@@ -15,29 +20,40 @@ export default {
   created() {
     this.$axios.interceptors.response.use(
       (res) => {
+        this.isError = false;
+        this.responseAnimation(res.data, "green", 1000);
         return res;
       },
       (err) => {
         if (err?.response?.status === 400) {
           this.isError = true;
-          this.errorMsg = err.response.data;
-          this.headerColor = false;
+          console.log(err.response.data);
+          this.responseAnimation(
+            err.response.data[0] || err.response.data.message,
+            "red",
+            1600
+          );
         }
 
-        //Promise.reject(err)
+        //Promise.reject(err);
       }
     );
   },
   data() {
     return {
-      errorMsg: "",
+      headerMsg: "",
       isError: false,
-      headerColor: true,
+      headerColor: "primary",
     };
   },
   methods: {
-    headerMsg(data) {
-      console.log("HeaderMsg" + data);
+    responseAnimation(msg, color, time) {
+      this.headerColor = color;
+      this.headerMsg = msg;
+      setTimeout(() => {
+        this.headerMsg = "";
+        this.headerColor = "primary";
+      }, time);
     },
   },
 };

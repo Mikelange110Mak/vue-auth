@@ -423,16 +423,6 @@ td.users__username>div>input:focus {
    box-shadow: 0px 4px 8px 14px #e74f4f;
 }
 
-.header {
-   background-color: #7a0808;
-   color: aliceblue;
-   position: absolute;
-   padding: 0.5rem 1rem;
-   width: 100%;
-   border-color: #7a0808;
-   border-radius: 0;
-}
-
 .hide {
    visibility: hidden;
 }
@@ -485,14 +475,4 @@ td.users__username>div>input:focus {
 
 .content .content__img-container img {
    max-height: 600px;
-}
-
-.greenHeader {
-   background-color: #297a2f;
-   border-color: #297a2f;
-}
-
-.redHeader {
-   background-color: #7a0808;
-   border-color: #7a0808;
 }
