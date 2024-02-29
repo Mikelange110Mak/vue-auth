@@ -56,9 +56,12 @@ export default {
         const response = await this.$axios.get("content");
         this.username = response.data.contentData.user.username;
         this.role = response.data.contentData.user.roles;
-        if (this.role.includes("ADMIN")) this.$router.push("/admin");
-        console.log(response.data.contentData.user);
-        console.log(this.role);
+        if (this.role.includes("ADMIN")) {
+          console.log(response.data.contentData.user.roles);
+          this.$router.push("/admin");
+        }
+        //console.log(response.data.contentData.user);
+        //console.log(this.role);
       } catch (error) {
         console.log(error);
       }

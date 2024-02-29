@@ -151,7 +151,7 @@ export default {
     },
     submitFormRegister() {
       const data = this.fieldsData();
-      console.log(data);
+      //console.log(data);
       this.registration(data);
     },
 

@@ -20,8 +20,19 @@ export default {
   created() {
     this.$axios.interceptors.response.use(
       (res) => {
-        this.isError = false;
-        this.responseAnimation(res.data, "green", 1000);
+        //  Успешная регистрация
+        if (res.config.url && res.config.url === "registration") {
+          this.isError = false;
+          this.responseAnimation(res.data, "green", 1000);
+        }
+
+        //  Логинится админ
+        if (
+          res.data.contentData &&
+          res.data.contentData.user.roles.includes("ADMIN")
+        ) {
+          console.log("adminkaaa");
+        }
         return res;
       },
       (err) => {
