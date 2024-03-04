@@ -1,4 +1,12 @@
 <template>
+  <the-header
+    :class="{
+      greenHeader: headerColor === 'green',
+      redHeader: headerColor === 'red',
+      primaryHeader: headerColor === 'primary',
+    }"
+    >{{ headerMsg }}</the-header
+  >
   <div class="admin">
     <div class="admin__body">
       <div class="users">
@@ -13,11 +21,17 @@
           </tbody>
           <tbody>
             <tr v-for="(user, index) in sortedUsersList" :key="index">
-              <td>{{ user.username }}</td>
-              <td>{{ user.roles[0] }}</td>
+              <td class="table__username-th">
+                <span v-if="!editingUser">{{ user.username }}</span>
+                <input v-else v-model="user.username" @blur="stopEditing" />
+              </td>
+              <td class="table__userrole-th">{{ user.roles[0] }}</td>
               <td>
                 <div class="table__btn-cnt" v-if="user.roles[0] !== 'ADMIN'">
-                  <button class="table__edit-user btn" @click="editUser(user)">
+                  <button
+                    class="table__edit-user btn"
+                    @click="editUser(user, $event)"
+                  >
                     Edit
                   </button>
                   <button
@@ -38,10 +52,15 @@
 
 
 <script>
+import TheHeader from "./TheHeader.vue";
+
 export default {
   data() {
     return {
       usersList: { admin: {}, users: [] },
+      headerMsg: "asd",
+      headerColor: "primary",
+      editingUser: false,
     };
   },
   methods: {
@@ -56,8 +75,41 @@ export default {
     },
     async deleteUser(user, event) {
       console.log(user);
-      let a = event.target.closest("tr");
-      console.log(a);
+      let parentTr = event.target.closest("tr");
+      parentTr.classList.add("animation");
+      setTimeout(() => {
+        parentTr.remove();
+      }, 400);
+      this.removeFromDb(user);
+      this.responseAnimation(
+        `Пользователь ${user.username} успешно удален`,
+        "green",
+        1600
+      );
+    },
+    async editUser(user, event) {
+      console.log(user);
+      console.log(event.target);
+      event.stopPropagation();
+      this.editingUser = user;
+    },
+    async removeFromDb(user) {
+      const response = await this.$axios.delete("delete-user", { data: user });
+      console.log(response);
+      console.log(`${user.username} был удален`);
+    },
+
+    responseAnimation(msg, color, time) {
+      this.headerColor = color;
+      this.headerMsg = msg;
+
+      setTimeout(() => {
+        this.headerMsg = "";
+        this.headerColor = "primary";
+      }, time);
+    },
+    stopEditing() {
+      this.editingUser = true;
     },
   },
   mounted() {
@@ -79,6 +131,9 @@ export default {
       });
       return users;
     },
+  },
+  components: {
+    TheHeader,
   },
 };
 </script>
@@ -107,5 +162,18 @@ export default {
   background-color: #be3333;
   color: #eeecec;
   padding: 5px 9px;
+}
+.animation {
+  -webkit-transform: translateX(-80%);
+  -ms-transform: translateX(-80%);
+  transform: translateX(-80%);
+  opacity: 0;
+  -webkit-transition: all 0.3s ease;
+  -o-transition: all 0.3s ease;
+  transition: all 0.3s ease;
+}
+.header {
+  left: 0;
+  top: 0;
 }
 </style>
