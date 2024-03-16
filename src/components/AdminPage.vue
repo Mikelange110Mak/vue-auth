@@ -6,13 +6,13 @@
       primaryHeader: headerColor === 'primary', // Добавляет класс 'primaryHeader', если значение переменной 'headerColor' равно 'primary'
     }"
     >{{ headerMsg }}</the-header
-  ><!-- Блок, реагирующий на клик и вызывающий метод 'stopEditing' -->
-  <div class="admin" @click="stopEditing">
+  >
+  <div class="admin">
     <div class="admin__body">
       <div class="users">
         <div class="users__title">Список зарегистрированных пользователей</div>
-        <!-- Граница где заканчивается событие клика 'stopEditing' -->
-        <table class="table table-hover" @click.stop="">
+
+        <table class="table table-hover">
           <tbody>
             <tr class="users__table-title">
               <th class="users__thTitle">Пользователь</th>
@@ -25,17 +25,7 @@
             <tr v-for="(user, index) in sortedUsersList" :key="index">
               <!-- Ячейка с именем пользователя -->
               <td class="table__username-th">
-                <!-- Eсли режим редактирования НЕ АКТИВЕН, то спан с ником юзера -->
-                <span v-if="!user.editing">{{ user.username }}</span>
-
-                <!-- Если режим редактирования АКТИВЕН, то инпут в котором можно отредактировать юзернейм -->
-                <input
-                  class="table__editing"
-                  v-else
-                  v-model="user.username"
-                  @blur="stopEditing(user)"
-                  :size="user.username.length"
-                />
+                <span>{{ user.username }}</span>
               </td>
 
               <!-- Ячейка с ролью пользователя -->
@@ -44,9 +34,18 @@
                 <!-- Ячейка с кнопками действий, невозможно применить действия на пользователей с ролью ADMIN -->
                 <div class="table__btn-cnt" v-if="user.roles[0] !== 'ADMIN'">
                   <!-- Кнопка для редактирования пользователя -->
-                  <button class="table__edit-user btn" @click="editUser(user)">
+                  <button
+                    v-if="!user.editingState"
+                    class="table__edit-user btn"
+                    :class="{ disabled: flagToDisable }"
+                    @click="editState(user, $event)"
+                  >
                     Edit
                   </button>
+                  <div v-else class="edit-group-btn">
+                    <button class="edit-save">✔️</button>
+                    <button class="edit-cancel">❌</button>
+                  </div>
                   <!-- Кнопка для удаления пользователя -->
                   <button
                     class="table__delete-user btn"
@@ -74,7 +73,7 @@ export default {
       usersList: { admin: {}, users: [] }, // Список пользователей
       headerMsg: "asd", // Сообщение для header, используется когда проворачиваешь действия с пользователями
       headerColor: "primary", // Цвет для header
-      editingUser: {}, // Пользователь, который редактируется в данный момент
+      flagToDisable: false, // Флаг чисто для отключения кнопочек
     };
   },
   methods: {
@@ -85,6 +84,10 @@ export default {
         const response = await this.$axios.get("users");
         // Запись полученных данных в usersList
         this.usersList = response.data.adminData;
+
+        this.usersList.users.forEach((user) => {
+          this.$set(user, "editingState", false);
+        });
       } catch (error) {
         console.log(error);
       }
@@ -109,19 +112,6 @@ export default {
       );
     },
 
-    //  Метод для редактирования пользователя
-    async editUser(user) {
-      // Сброс режима редактирования для предыдущего пользователя
-      this.editingUser.editing = false;
-      // Установка режима редактирования для текущего пользователя
-      user.editing = true;
-
-      //Установка текущего пользователя в объект editingUser.
-      //Это позволяет отслеживать, какой пользователь редактируется в данный момент.
-      //Когда мы устанавливаем editingUser равным user, мы фактически указываем, что пользователь user редактируется сейчас.
-      this.editingUser = user;
-    },
-
     //  Метод удаления пользователя из бд
     async removeFromDb(user) {
       const response = await this.$axios.delete("delete-user", { data: user });
@@ -139,8 +129,25 @@ export default {
         this.headerColor = "primary";
       }, time);
     },
-    stopEditing(user) {
-      user.editing = false;
+    editState(user, event) {
+      // Поиск той ячейки с юзернеймом
+      let cell = event.target
+        .closest("tr")
+        .querySelector(".table__username-th");
+      // Нашлась? тогда вызываю метод editing
+      if (cell) {
+        this.flagToDisable = true;
+        user.editingState = true;
+        this.editing(cell, user.username);
+      }
+    },
+    editing(cell, username) {
+      let inputElement = document.createElement("input");
+      inputElement.className = "table__editing";
+      inputElement.value = username;
+      inputElement.setAttribute("size", username.length);
+      // Заменяем <span> на <input>
+      cell.querySelector("span").replaceWith(inputElement);
     },
   },
   //  Вызов метода для получения пользователей
@@ -211,8 +218,24 @@ export default {
 .table__editing {
   text-align: center;
   border: 1px solid #333;
+  padding: 3px;
 }
 .table__username-th {
   max-width: 240px;
+}
+.edit-group-btn {
+  display: inline-block;
+}
+.edit-save {
+  margin-right: 9px;
+}
+.edit-group-btn button {
+  background: inherit;
+  border: 1px solid #33333383;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.edit-group-btn button:hover {
+  background: rgb(155, 154, 154);
 }
 </style>

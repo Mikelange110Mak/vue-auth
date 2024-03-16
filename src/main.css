@@ -247,16 +247,6 @@ td.role {
    border-radius: 6px;
 }
 
-.check {
-   -webkit-transform: translateX(-80%);
-   -ms-transform: translateX(-80%);
-   transform: translateX(-80%);
-   opacity: 0;
-   -webkit-transition: all 0.3s ease;
-   -o-transition: all 0.3s ease;
-   transition: all 0.3s ease;
-}
-
 .edit-input {
    background-color: inherit;
    padding: 3px 2px;
